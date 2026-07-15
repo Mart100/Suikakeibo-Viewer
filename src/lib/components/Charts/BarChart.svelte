@@ -22,7 +22,7 @@
 		<p class="empty">No data in this range</p>
 	{:else if horizontal}
 		<ul class="bars">
-			{#each data as row (row.label)}
+			{#each data as row, i (`${i}-${row.label}`)}
 				<li>
 					<span class="label" title={row.label}>{row.label}</span>
 					<div class="track">
@@ -34,7 +34,7 @@
 		</ul>
 	{:else}
 		<div class="columns" style={`--n: ${data.length}`}>
-			{#each data as row (row.label)}
+			{#each data as row, i (`${i}-${row.label}`)}
 				<div class="col">
 					<div class="col-bar-wrap">
 						<div class="col-bar" style={`height: ${(row.value / max) * 100}%`} title={formatValue(row.value)}></div>

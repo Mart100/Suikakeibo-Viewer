@@ -88,20 +88,19 @@ export function tripsByWeekday(trips: NormalizedTrip[]): NamedCount[] {
 }
 
 export function topStations(trips: NormalizedTrip[], limit = 10): NamedCount[] {
-	const map = new Map<string, { name: string; count: number }>();
-	const bump = (key: string, name: string) => {
-		const cur = map.get(key);
-		if (cur) cur.count += 1;
-		else map.set(key, { name, count: 1 });
+	// Aggregate by display name so the same station on different lines merges
+	const map = new Map<string, number>();
+	const bump = (name: string) => {
+		map.set(name, (map.get(name) ?? 0) + 1);
 	};
 	for (const t of trips) {
-		if (t.start) bump(t.start.key, t.start.name);
-		if (t.exit) bump(t.exit.key, t.exit.name);
+		if (t.start) bump(t.start.name);
+		if (t.exit) bump(t.exit.name);
 	}
-	return [...map.values()]
-		.sort((a, b) => b.count - a.count)
+	return [...map.entries()]
+		.sort((a, b) => b[1] - a[1])
 		.slice(0, limit)
-		.map((x) => ({ label: x.name, value: x.count }));
+		.map(([label, value]) => ({ label, value }));
 }
 
 export function topOdPairs(trips: NormalizedTrip[], limit = 10): NamedCount[] {
