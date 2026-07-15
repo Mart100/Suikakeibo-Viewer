@@ -78,6 +78,7 @@ function resolveStation(
 		return {
 			key: candidate,
 			name: info.name,
+			romaji: info.romaji,
 			line: info.line,
 			company: info.company,
 			lat: info.lat,

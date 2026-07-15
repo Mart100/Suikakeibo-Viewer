@@ -5,6 +5,7 @@
 	import type { NormalizedTrip, ViewRange } from '$lib/skb/types';
 	import { buildCorridors, mappableLegs } from '$lib/analysis/stats';
 	import { formatYen } from '$lib/skb/utils';
+	import { routeTitle } from '$lib/skb/labels';
 
 	let {
 		trips,
@@ -262,7 +263,9 @@
 					{#each legs as leg, i (leg.id)}
 						<li>
 							<button class:active={i === activeIndex} onclick={() => selectLeg(i)}>
-								<span class="route">{leg.start?.name} → {leg.exit?.name}</span>
+								<span class="route" title={routeTitle(leg.start, leg.exit)}
+									>{leg.start?.name} → {leg.exit?.name}</span
+								>
 								<span class="meta">
 									{#if leg.hasClockTime}
 										{leg.localIso.slice(11, 16)} ·
@@ -277,7 +280,7 @@
 		{:else}
 			<ol>
 				{#each corridors.slice(0, 40) as c (c.key)}
-					<li class="corridor">
+					<li class="corridor" title={c.tip}>
 						<span class="route">{c.fromName} ↔ {c.toName}</span>
 						<span class="meta">{c.count}×</span>
 					</li>

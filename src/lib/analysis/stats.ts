@@ -65,7 +65,7 @@ export function computeOverview(trips: NormalizedTrip[]): OverviewStats {
 	};
 }
 
-export type NamedCount = { label: string; value: number };
+export type NamedCount = { label: string; value: number; tip?: string };
 
 export function spendByMonth(trips: NormalizedTrip[]): NamedCount[] {
 	const map = new Map<string, number>();
@@ -88,33 +88,43 @@ export function tripsByWeekday(trips: NormalizedTrip[]): NamedCount[] {
 }
 
 export function topStations(trips: NormalizedTrip[], limit = 10): NamedCount[] {
-	// Only real resolved stations — skip shops, bus-stop codes, unknowns
-	const map = new Map<string, number>();
-	const bump = (name: string) => {
-		map.set(name, (map.get(name) ?? 0) + 1);
+	const map = new Map<string, { count: number; romaji?: string }>();
+	const bump = (name: string, romaji?: string) => {
+		const cur = map.get(name);
+		if (cur) cur.count += 1;
+		else map.set(name, { count: 1, romaji });
 	};
 	for (const t of trips) {
-		if (t.start?.known) bump(t.start.name);
-		if (t.exit?.known) bump(t.exit.name);
+		if (t.start?.known) bump(t.start.name, t.start.romaji);
+		if (t.exit?.known) bump(t.exit.name, t.exit.romaji);
 	}
 	return [...map.entries()]
-		.sort((a, b) => b[1] - a[1])
+		.sort((a, b) => b[1].count - a[1].count)
 		.slice(0, limit)
-		.map(([label, value]) => ({ label, value }));
+		.map(([label, { count, romaji }]) => ({
+			label,
+			value: count,
+			tip: romaji ? `${label} (${romaji})` : label
+		}));
 }
 
 export function topOdPairs(trips: NormalizedTrip[], limit = 10): NamedCount[] {
-	const map = new Map<string, number>();
+	const map = new Map<string, { count: number; tip: string }>();
 	for (const t of trips) {
 		if (!t.start?.known || !t.exit?.known) continue;
 		if (t.category !== 'train' && t.category !== 'bus') continue;
 		const label = `${t.start.name} → ${t.exit.name}`;
-		map.set(label, (map.get(label) ?? 0) + 1);
+		const fromR = t.start.romaji ? ` (${t.start.romaji})` : '';
+		const toR = t.exit.romaji ? ` (${t.exit.romaji})` : '';
+		const tip = `${t.start.name}${fromR} → ${t.exit.name}${toR}`;
+		const cur = map.get(label);
+		if (cur) cur.count += 1;
+		else map.set(label, { count: 1, tip });
 	}
 	return [...map.entries()]
-		.sort((a, b) => b[1] - a[1])
+		.sort((a, b) => b[1].count - a[1].count)
 		.slice(0, limit)
-		.map(([label, value]) => ({ label, value }));
+		.map(([label, { count, tip }]) => ({ label, value: count, tip }));
 }
 
 export function categoryBreakdown(trips: NormalizedTrip[]): NamedCount[] {
@@ -174,6 +184,7 @@ export type Corridor = {
 	to: [number, number];
 	fromName: string;
 	toName: string;
+	tip: string;
 	count: number;
 	dates: string[];
 };
@@ -190,16 +201,17 @@ export function buildCorridors(trips: NormalizedTrip[]): Corridor[] {
 			existing.count += 1;
 			existing.dates.push(t.date);
 		} else {
+			const from = ordered ? t.start! : t.exit!;
+			const to = ordered ? t.exit! : t.start!;
+			const fromR = from.romaji ? ` (${from.romaji})` : '';
+			const toR = to.romaji ? ` (${to.romaji})` : '';
 			map.set(key, {
 				key,
-				from: ordered
-					? [t.start!.lng!, t.start!.lat!]
-					: [t.exit!.lng!, t.exit!.lat!],
-				to: ordered
-					? [t.exit!.lng!, t.exit!.lat!]
-					: [t.start!.lng!, t.start!.lat!],
-				fromName: ordered ? t.start!.name : t.exit!.name,
-				toName: ordered ? t.exit!.name : t.start!.name,
+				from: [from.lng!, from.lat!],
+				to: [to.lng!, to.lat!],
+				fromName: from.name,
+				toName: to.name,
+				tip: `${from.name}${fromR} ↔ ${to.name}${toR}`,
 				count: 1,
 				dates: [t.date]
 			});

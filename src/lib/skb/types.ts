@@ -57,9 +57,19 @@ export type SkbDatabase = {
 
 export type TripCategory = 'train' | 'bus' | 'charge' | 'purchase' | 'other';
 
+export type StationInfo = {
+	name: string;
+	line?: string;
+	company?: string;
+	lat?: number;
+	lng?: number;
+	romaji?: string;
+};
+
 export type ResolvedStation = {
 	key: string;
 	name: string;
+	romaji?: string;
 	line?: string;
 	company?: string;
 	lat?: number;
@@ -87,14 +97,6 @@ export type NormalizedTrip = {
 	start: ResolvedStation | null;
 	exit: ResolvedStation | null;
 	raw: SkbTransaction;
-};
-
-export type StationInfo = {
-	name: string;
-	line?: string;
-	company?: string;
-	lat?: number;
-	lng?: number;
 };
 
 export type StationIndex = Record<string, StationInfo>;

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { NormalizedTrip } from '$lib/skb/types';
 	import { formatYen } from '$lib/skb/utils';
+	import { stationTitle } from '$lib/skb/labels';
 
 	let { trips }: { trips: NormalizedTrip[] } = $props();
 
@@ -34,14 +35,18 @@
 						<td><span class="tag {trip.category}">{trip.category}</span></td>
 						<td>
 							{#if trip.start}
-								<span class:muted={!trip.start.known}>{trip.start.name}</span>
+								<span class:muted={!trip.start.known} title={stationTitle(trip.start)}
+									>{trip.start.name}</span
+								>
 							{:else}
 								—
 							{/if}
 						</td>
 						<td>
 							{#if trip.exit}
-								<span class:muted={!trip.exit.known}>{trip.exit.name}</span>
+								<span class:muted={!trip.exit.known} title={stationTitle(trip.exit)}
+									>{trip.exit.name}</span
+								>
 							{:else}
 								—
 							{/if}

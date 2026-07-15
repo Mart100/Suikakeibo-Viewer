@@ -24,7 +24,7 @@
 		<ul class="bars">
 			{#each data as row, i (`${i}-${row.label}`)}
 				<li>
-					<span class="label" title={row.label}>{row.label}</span>
+					<span class="label" title={row.tip ?? row.label}>{row.label}</span>
 					<div class="track">
 						<div class="fill" style={`width: ${(row.value / max) * 100}%`}></div>
 					</div>
@@ -35,9 +35,9 @@
 	{:else}
 		<div class="columns" style={`--n: ${data.length}`}>
 			{#each data as row, i (`${i}-${row.label}`)}
-				<div class="col">
+				<div class="col" title={row.tip ?? row.label}>
 					<div class="col-bar-wrap">
-						<div class="col-bar" style={`height: ${(row.value / max) * 100}%`} title={formatValue(row.value)}></div>
+						<div class="col-bar" style={`height: ${(row.value / max) * 100}%`}></div>
 					</div>
 					<span class="col-label">{row.label}</span>
 				</div>

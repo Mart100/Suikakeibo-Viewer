@@ -113,8 +113,12 @@
 			<section class="panel stack">
 				<StatsOverview stats={overview} />
 				<div class="charts">
-					<BarChart title="Spend by month" data={spendByMonth(filtered)} formatValue={formatYen} />
-					<BarChart title="Trips by weekday" data={tripsByWeekday(filtered)} />
+					{#if history.range.mode === 'all'}
+						<BarChart title="Spend by month" data={spendByMonth(filtered)} formatValue={formatYen} />
+					{/if}
+					{#if history.range.mode !== 'day'}
+						<BarChart title="Trips by weekday" data={tripsByWeekday(filtered)} />
+					{/if}
 					<BarChart title="Top stations" data={topStations(filtered)} horizontal />
 					<BarChart title="Top routes" data={topOdPairs(filtered)} horizontal />
 					<BarChart title="By category" data={categoryBreakdown(filtered)} />
