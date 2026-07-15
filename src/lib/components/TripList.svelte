@@ -32,8 +32,20 @@
 							{/if}
 						</td>
 						<td><span class="tag {trip.category}">{trip.category}</span></td>
-						<td>{trip.start?.name ?? '—'}</td>
-						<td>{trip.exit?.name ?? '—'}</td>
+						<td>
+							{#if trip.start}
+								<span class:muted={!trip.start.known}>{trip.start.name}</span>
+							{:else}
+								—
+							{/if}
+						</td>
+						<td>
+							{#if trip.exit}
+								<span class:muted={!trip.exit.known}>{trip.exit.name}</span>
+							{:else}
+								—
+							{/if}
+						</td>
 						<td class="num">{formatYen(trip.fare)}</td>
 						<td class="num">{formatYen(trip.balance)}</td>
 					</tr>
@@ -80,6 +92,10 @@
 		display: block;
 		color: var(--muted);
 		font-size: 0.75rem;
+	}
+	.muted {
+		color: var(--muted);
+		font-style: italic;
 	}
 	.tag {
 		display: inline-block;

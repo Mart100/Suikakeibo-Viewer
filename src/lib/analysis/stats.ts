@@ -88,14 +88,14 @@ export function tripsByWeekday(trips: NormalizedTrip[]): NamedCount[] {
 }
 
 export function topStations(trips: NormalizedTrip[], limit = 10): NamedCount[] {
-	// Aggregate by display name so the same station on different lines merges
+	// Only real resolved stations — skip shops, bus-stop codes, unknowns
 	const map = new Map<string, number>();
 	const bump = (name: string) => {
 		map.set(name, (map.get(name) ?? 0) + 1);
 	};
 	for (const t of trips) {
-		if (t.start) bump(t.start.name);
-		if (t.exit) bump(t.exit.name);
+		if (t.start?.known) bump(t.start.name);
+		if (t.exit?.known) bump(t.exit.name);
 	}
 	return [...map.entries()]
 		.sort((a, b) => b[1] - a[1])
@@ -106,7 +106,7 @@ export function topStations(trips: NormalizedTrip[], limit = 10): NamedCount[] {
 export function topOdPairs(trips: NormalizedTrip[], limit = 10): NamedCount[] {
 	const map = new Map<string, number>();
 	for (const t of trips) {
-		if (!t.start || !t.exit) continue;
+		if (!t.start?.known || !t.exit?.known) continue;
 		if (t.category !== 'train' && t.category !== 'bus') continue;
 		const label = `${t.start.name} → ${t.exit.name}`;
 		map.set(label, (map.get(label) ?? 0) + 1);

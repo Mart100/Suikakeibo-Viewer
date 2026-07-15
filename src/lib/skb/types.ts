@@ -64,6 +64,7 @@ export type ResolvedStation = {
 	company?: string;
 	lat?: number;
 	lng?: number;
+	/** True when resolved from the Saibane station index (real station name). */
 	known: boolean;
 };
 

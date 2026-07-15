@@ -4,7 +4,8 @@ import type {
 	ResolvedStation,
 	SkbDatabase,
 	SkbStationCode,
-	StationIndex
+	StationIndex,
+	TripCategory
 } from './types';
 import { categorizeTransaction, localParts, stationKey } from './utils';
 
@@ -53,31 +54,59 @@ export async function parseSkbFile(file: File | ArrayBuffer): Promise<SkbDatabas
 
 function resolveStation(
 	code: SkbStationCode | null | undefined,
-	index: StationInfoMap
+	index: StationInfoMap,
+	category: TripCategory
 ): ResolvedStation | null {
 	if (!code) return null;
+
 	const key = stationKey(code.regionCode, code.lineCode, code.stationCode);
-	const info = index[key];
-	if (info) {
+
+	// Try exact key, then region fallbacks when region was omitted in the backup
+	const candidates =
+		code.lineCode != null
+			? [
+					key,
+					...(code.regionCode == null
+						? [0, 1, 2, 3].map((r) => `${r}-${code.lineCode}-${code.stationCode}`)
+						: [])
+				]
+			: [key];
+
+	for (const candidate of candidates) {
+		const info = index[candidate];
+		if (!info) continue;
 		return {
-			key,
+			key: candidate,
 			name: info.name,
 			line: info.line,
 			company: info.company,
 			lat: info.lat,
 			lng: info.lng,
-			known: info.lat != null && info.lng != null
+			known: true
 		};
 	}
-	const label =
-		code.lineCode != null
-			? `Unknown (r${code.regionCode ?? '?'}/l${code.lineCode}/s${code.stationCode})`
-			: `Unknown (#${code.stationCode})`;
+
+	// Non-rail codes (shops, bus stops, ticket machines) are not in the station index
 	return {
 		key,
-		name: label,
+		name: unresolvedLabel(category),
 		known: false
 	};
+}
+
+function unresolvedLabel(category: TripCategory): string {
+	switch (category) {
+		case 'purchase':
+			return 'Shop';
+		case 'bus':
+			return 'Bus stop';
+		case 'charge':
+			return 'Charge machine';
+		case 'train':
+			return 'Unknown station';
+		default:
+			return 'Unknown location';
+	}
 }
 
 type StationInfoMap = StationIndex;
@@ -94,13 +123,13 @@ export function normalizeTrips(db: SkbDatabase, stations: StationIndex): Normali
 			tx.startedAt.offsetMillis
 		);
 
-		const start = resolveStation(tx.startStationCode, stations);
-		const exit = resolveStation(tx.exitStationCode, stations);
 		const category = categorizeTransaction(
 			tx.processCode,
 			tx.exitStationCode != null,
 			tx.rawFare
 		);
+		const start = resolveStation(tx.startStationCode, stations, category);
+		const exit = resolveStation(tx.exitStationCode, stations, category);
 
 		trips.push({
 			id: tx.id,
