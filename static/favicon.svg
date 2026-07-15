@@ -9,18 +9,13 @@
 			<stop offset="1" stop-color="#fff" stop-opacity="0"/>
 		</linearGradient>
 	</defs>
-	<!-- soft backdrop -->
 	<rect width="64" height="64" rx="14" fill="#f3efe6"/>
-	<!-- IC card -->
 	<g transform="translate(32 33) rotate(-18) translate(-32 -33)">
 		<rect x="14" y="16" width="36" height="34" rx="5" fill="url(#card)"/>
 		<rect x="14" y="16" width="36" height="34" rx="5" fill="url(#shine)"/>
-		<!-- chip -->
 		<rect x="19" y="22" width="8" height="6.5" rx="1.2" fill="#d8b45a"/>
 		<path d="M21 23.2h4M21 25.2h4M21 27.2h4" stroke="#b8943d" stroke-width=".7" stroke-linecap="round"/>
-		<!-- route arc -->
 		<path d="M30 28.5c6.5 0 11.5 3.2 14 7" fill="none" stroke="#ecfdf5" stroke-width="2" stroke-linecap="round" opacity=".9"/>
-		<!-- train mark -->
 		<g transform="translate(33.5 36)">
 			<rect x="0" y="0" width="12" height="8" rx="2" fill="#ecfdf5"/>
 			<rect x="1.5" y="1.5" width="3.2" height="2.6" rx=".5" fill="#0f766e"/>

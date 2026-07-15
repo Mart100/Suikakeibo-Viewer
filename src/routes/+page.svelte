@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { base } from '$app/paths';
 	import { history } from '$lib/history.svelte';
+	import logo from '$lib/assets/favicon.svg';
 	import UploadDropzone from '$lib/components/UploadDropzone.svelte';
 	import RangeControls from '$lib/components/RangeControls.svelte';
 	import StatsOverview from '$lib/components/StatsOverview.svelte';
@@ -46,13 +47,16 @@
 
 <main>
 	<header class="hero">
-		<div>
-			<p class="eyebrow">Private IC card analysis</p>
-			<h1>Suikakeibo Viewer</h1>
-			<p class="lede">
-				Upload a Suikakeibo `.skb` backup to explore your Suica / ICOCA / PASMO history on a map
-				timeline — with spend stats. Everything stays in your browser.
-			</p>
+		<div class="brand">
+			<img class="logo" src={logo} alt="" width="56" height="56" />
+			<div>
+				<p class="eyebrow">Private IC card analysis</p>
+				<h1>Suikakeibo Viewer</h1>
+				<p class="lede">
+					Upload a Suikakeibo `.skb` backup to explore your Suica / ICOCA / PASMO history on a map
+					timeline — with spend stats. Everything stays in your browser.
+				</p>
+			</div>
 		</div>
 		{#if history.data}
 			<button class="ghost" onclick={() => history.clear()}>Clear data</button>
@@ -151,6 +155,19 @@
 		gap: 1rem;
 		align-items: flex-start;
 		margin-bottom: 1.5rem;
+	}
+	.brand {
+		display: flex;
+		gap: 0.95rem;
+		align-items: flex-start;
+		min-width: 0;
+	}
+	.logo {
+		width: 3.5rem;
+		height: 3.5rem;
+		border-radius: 0.85rem;
+		flex-shrink: 0;
+		box-shadow: 0 8px 20px color-mix(in oklab, var(--accent) 18%, transparent);
 	}
 	.eyebrow {
 		margin: 0 0 0.35rem;
